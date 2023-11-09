@@ -3,6 +3,7 @@
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
 int menu = 1;
+int x = 1;
 
 bool up = LOW;
 bool down = LOW;
@@ -14,10 +15,13 @@ void setup() {
   Serial.begin(9600);
 
   lcd.begin(16, 2);
-  lcd.setCursor(0, 0);  
+  lcd.setCursor(0, 0);
   lcd.print("Test On");
   delay(500);
   lcd.clear();
+  lcd.print(">1.Mode");
+  lcd.setCursor(0,1);
+  lcd.print(" 2.Setting");
 }
 
 void loop() {
@@ -44,8 +48,10 @@ void loop() {
     updateMenu();
     delay(100);
   }
+  Serial.print(x);
+  delay(100);
 }
-
+// Menu 1
 void updateMenu() {
   switch (menu) {
     case 0:
@@ -54,7 +60,7 @@ void updateMenu() {
     case 1:
       lcd.clear();
       lcd.print(">1.Mode");
-      lcd.setCursor(0,1);
+      lcd.setCursor(0, 1);
       lcd.print(" 2.Setting");
       break;
     case 2:
@@ -79,46 +85,93 @@ void executeAction() {
       break;
   }
 }
-
+// Khi chon Mode //
 void action1() {
   lcd.clear();
-  while (!select) {
-    menu = 1;
-    lcd.setCursor(0, 1);
-    lcd.print("Mode: 1");
-    getKeyinput();
-    if(left){
-      menu--;
-      updateMenu();
+  lcd.print("Mode: 1");
+  bool buttonPressed = false;
+  int selectedMode = 0;
+
+  while (!left) {
+    if (!buttonPressed) {
+      getKeyinput();
     }
-    if(right){
-      menu++;
-      updateMenu();
-    }
-    if(up){
-      menu = 2;
-      updateMenu();
-    }
-    if(down){
-      menu = 1;
-      updateMenu();
-    }
-    switch(menu){
+
+    if (up && x < 4) {
+      x++;
+      lcd.clear();
+      lcd.print("Mode: ");
+      lcd.print(x);
+      delay(100);
       
-      case 1:
+    } 
+    else if (down && x > 1) {
+      x--;
+      lcd.clear();
+      lcd.print("Mode: ");
+      lcd.print(x);
+      delay(100);
+    } 
+    else if (select) {
+      selectedMode = x;
+      lcd.clear();
+      
+      if(selectedMode == 1 )
+      {
         lcd.clear();
-        lcd.print("Choose Mode");
-        lcd.setCursor(0,1);
-        lcd.print("Mode: 1");
-      case 2:
+        executeMode1();
+      }
+      if(selectedMode == 2){
         lcd.clear();
-        lcd.print("Choose Mode");
-        lcd.setCursor(0,1);
-        lcd.print("Mode: 2");
+        executeMode2();
+      }
+      if(selectedMode == 3){
+        lcd.clear();
+        executeMode3();
+      }
+      if(selectedMode == 4){
+        lcd.clear();
+        executeMode4();
+      }
     }
+     else {
+      buttonPressed = false;
+    }
+    delay(100);
   }
 }
 
+// excute cua Mode
+
+void executeMode1() {
+  lcd.print("Mode: 1");
+  lcd.setCursor(0, 1);
+  lcd.print("Selected");
+  // Execute actions specific to Mode 1 here
+}
+
+void executeMode2() {
+  lcd.print("Mode: 2");
+  lcd.setCursor(0, 1);
+  lcd.print("Selected");
+  // Execute actions specific to Mode 2 here
+}
+
+void executeMode3() {
+  lcd.print("Mode: 3");
+  lcd.setCursor(0, 1);
+  lcd.print("Selected");
+  // Execute actions specific to Mode 3 here
+}
+
+void executeMode4() {
+  lcd.print("Mode: 4");
+  lcd.setCursor(0, 1);
+  lcd.print("Selected");
+  // Execute actions specific to Mode 4 here
+}
+
+// action cua Setting (chua lam) //
 void action2() {
   lcd.clear();
   while (!select) {
@@ -126,26 +179,26 @@ void action2() {
     lcd.setCursor(0, 1);
     lcd.print("Mode: 1");
     getKeyinput();
-    if(left){
+    if (left) {
       menu--;
       updateMenu();
     }
-    if(right){
+    if (right) {
       menu++;
       updateMenu();
     }
-    if(up){
+    if (up) {
       menu = 2;
       updateMenu();
     }
-    if(down){
+    if (down) {
       menu = 1;
       updateMenu();
     }
-  
   }
 }
 
+// Lay du lieu tu phim keypad //
 void getKeyinput() {
   int key = analogRead(A0);
   if (key > 1000) {
@@ -159,23 +212,25 @@ void getKeyinput() {
   {
     right = HIGH;
     Serial.println("RIGHT");
-  } else if (key < 200)  // Up Key
+  } 
+  else if (key < 200)  // Up Key
   {
-
     up = HIGH;
     Serial.println("UP");
-  } else if (key < 400)  // Down Key
+  } 
+  else if (key < 400)  // Down Key
   {
     down = HIGH;
     Serial.println("DOWN");
-  } else if (key < 600)  //Left Key
+  } 
+  else if (key < 600)  // Left Key
   {
     left = HIGH;
     Serial.println("LEFT");
-  } else if (key < 800)  //Result
-
+  } 
+  else if (key < 800)  // Select
   {
     select = HIGH;
-    Serial.print("Select");
+    Serial.println("Select");
   }
 }
